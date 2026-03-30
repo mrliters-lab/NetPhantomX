@@ -644,4 +644,18 @@
             
             for (let i = 0; i < drops.length; i++) {
                 let char = characters.charAt(floor(random(characters.length)));
-      
+                      text(char, i * 20, drops[i]);
+                if (drops[i] > height && random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i] += 20;
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    </script>
+</body>
+</html>
+
