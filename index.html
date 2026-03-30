@@ -645,6 +645,7 @@
             for (let i = 0; i < drops.length; i++) {
                 let char = characters.charAt(floor(random(characters.length)));
                       text(char, i * 20, drops[i]);
+                
                 if (drops[i] > height && random() > 0.975) {
                     drops[i] = 0;
                 }
@@ -655,7 +656,23 @@
         function windowResized() {
             resizeCanvas(windowWidth, windowHeight);
         }
+
+        // Glitch intensity on hover
+        const glitchElement = document.querySelector('.glitch');
+        if (glitchElement) {
+            glitchElement.addEventListener('mouseenter', () => {
+                glitchElement.style.animation = 'glitch 0.1s infinite';
+            });
+            
+            glitchElement.addEventListener('mouseleave', () => {
+                glitchElement.style.animation = 'glitch 2s infinite';
+            });
+        }
+
+        // Console Easter Egg
+        console.log('%c MR-LITERS LAB ', 'background: #00ff00; color: #000; font-size: 30px; font-weight: bold;');
+        console.log('%c Welcome to the Matrix ', 'color: #00ff00; font-size: 16px;');
+        console.log('%c Contact: Mr.coders2143@Gmail.com ', 'color: #00cc00; font-size: 14px;');
     </script>
 </body>
 </html>
-
