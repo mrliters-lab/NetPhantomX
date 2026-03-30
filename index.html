@@ -1,1 +1,562 @@
-echo "Welcome to NetPhantomX" >
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MR-LITERS LAB</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #00ff00;
+            font-family: 'Cairo', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Matrix Canvas Background */
+        #matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.3;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+            max-width: 100%;
+            min-height: 100vh;
+        }
+
+        /* Glitch Effect */
+        .glitch {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(36px, 8vw, 72px);
+            font-weight: 900;
+            text-transform: uppercase;
+            position: relative;
+            color: #00ff00;
+            text-shadow: 
+                0 0 10px #00ff00,
+                0 0 20px #00ff00,
+                0 0 30px #00ff00,
+                0 0 40px #00cc00;
+            animation: glitch 2s infinite;
+            letter-spacing: 2px;
+            text-align: center;
+            padding: 20px 10px;
+            margin-bottom: 20px;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            color: #ff00ff;
+            animation: glitch-1 0.3s infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+            transform: translate(-2px, -2px);
+        }
+
+        .glitch::after {
+            color: #00ffff;
+            animation: glitch-2 0.3s infinite;
+            clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+            transform: translate(2px, 2px);
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+
+        @keyframes glitch-1 {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-3px, 0); }
+            40% { transform: translate(3px, 0); }
+            60% { transform: translate(-3px, 0); }
+            80% { transform: translate(3px, 0); }
+        }
+
+        @keyframes glitch-2 {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(3px, 0); }
+            40% { transform: translate(-3px, 0); }
+            60% { transform: translate(3px, 0); }
+            80% { transform: translate(-3px, 0); }
+        }
+
+        /* Terminal Window */
+        .terminal {
+            background: rgba(0, 20, 0, 0.85);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 0, 0.5),
+                inset 0 0 20px rgba(0, 255, 0, 0.1);
+            max-width: 600px;
+            position: relative;
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        .terminal-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            color: #00cc00;
+            margin-right: auto;
+        }
+
+        .terminal-content {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(12px, 3vw, 16px);
+            line-height: 1.6;
+            color: #00ff00;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .terminal-content .prompt {
+            color: #00cc00;
+        }
+
+        .terminal-content .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background: #00ff00;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Welcome Message */
+        .welcome-msg {
+            font-size: clamp(18px, 4vw, 24px);
+            text-align: center;
+            color: #33ff33;
+            margin: 30px 0;
+            padding: 20px;
+            text-shadow: 0 0 10px #00ff00;
+            line-height: 1.8;
+        }
+
+        /* Feature Cards */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+            padding: 0 10px;
+        }
+
+        .feature-card {
+            background: rgba(0, 20, 0, 0.8);
+            border: 1px solid #00cc00;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 0 30px rgba(0, 255, 0, 0.6),
+                0 10px 30px rgba(0, 255, 0, 0.3);
+            border-color: #00ff00;
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            color: #00ff00;
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px #00ff00;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #33ff33;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: #00cc00;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: rgba(0, 10, 0, 0.9);
+            border-left: 3px solid #00ff00;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(11px, 2.5vw, 13px);
+            color: #33ff33;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            box-shadow: 
+                inset 0 0 10px rgba(0, 255, 0, 0.1),
+                0 0 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .code-block .keyword {
+            color: #ff00ff;
+        }
+
+        .code-block .string {
+            color: #00ffff;
+        }
+
+        .code-block .comment {
+            color: #009900;
+            font-style: italic;
+        }
+
+        /* Scanner Line */
+        .scanner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                #00ff00, 
+                #00ff00, 
+                transparent);
+            box-shadow: 0 0 20px #00ff00;
+            animation: scan 3s linear infinite;
+            z-index: 10;
+            opacity: 0.6;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            border-top: 1px solid #00cc00;
+            color: #009900;
+            font-size: 14px;
+        }
+
+        .footer-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
+        }
+
+        .footer-icons .material-icons {
+            font-size: 32px;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .footer-icons .material-icons:hover {
+            transform: scale(1.2);
+            color: #33ff33;
+        }
+
+        /* Hexagon Decorations */
+        .hexagon {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 2px solid #00ff00;
+            opacity: 0.2;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hexagon:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+        .hexagon:nth-child(2) { top: 30%; right: 5%; animation-delay: 2s; }
+        .hexagon:nth-child(3) { bottom: 20%; left: 10%; animation-delay: 4s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(30deg); }
+        }
+
+        /* Glow Lines */
+        .glow-line {
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                #00ff00, 
+                transparent);
+            margin: 30px 0;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            .terminal {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .glitch {
+                font-size: 32px;
+            }
+        }
+
+        /* Particle Effect */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Binary Rain Strip */
+        .binary-strip {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            direction: ltr;
+            text-align: left;
+            margin: 10px 0;
+            opacity: 0.4;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="matrix-bg"></div>
+    <div class="scanner"></div>
+    
+    <!-- Hexagon Decorations -->
+    <div class="hexagon"></div>
+    <div class="hexagon"></div>
+    <div class="hexagon"></div>
+    
+    <div class="container">
+        <!-- Header with Glitch Effect -->
+        <header>
+            <div class="glitch" data-text="MR-LITERS LAB">MR-LITERS LAB</div>
+            <p class="welcome-msg">مرحباً بك في المنطقة البرمجية الخاصة بـ عبد الله</p>
+        </header>
+
+        <div class="glow-line"></div>
+
+        <!-- Terminal Window -->
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-dot"></div>
+                <div class="terminal-dot" style="background: #ffcc00;"></div>
+                <div class="terminal-dot" style="background: #ff0000;"></div>
+                <span class="terminal-title">terminal@mr-liters:~</span>
+            </div>
+            <div class="terminal-content">
+                <div><span class="prompt">$</span> whoami</div>
+                <div>عبد الله - مبرمج و مطور</div>
+                <div><span class="prompt">$</span> cat skills.txt</div>
+                <div>Web Development • Mobile Apps • Security</div>
+                <div><span class="prompt">$</span> echo "Welcome to my lab"</div>
+                <div>Welcome to my lab<span class="cursor"></span></div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="material-icons" style="font-size: 48px;">code</i>
+                </div>
+                <div class="feature-title">البرمجة</div>
+                <div class="feature-desc">تطوير تطبيقات ويب وموبايل بأحدث التقنيات</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="material-icons" style="font-size: 48px;">security</i>
+                </div>
+                <div class="feature-title">الأمن السيبراني</div>
+                <div class="feature-desc">حماية الأنظمة والشبكات من الاختراق</div>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="material-icons" style="font-size: 48px;">terminal</i>
+                </div>
+                <div class="feature-title">التطوير</div>
+                <div class="feature-desc">بناء حلول تقنية متقدمة ومبتكرة</div>
+            </div>
+        </div>
+
+        <!-- Binary Strip -->
+        <div class="binary-strip">
+            01001101 01010010 00101101 01001100 01001001 01010100 01000101 01010010 01010011
+        </div>
+
+        <!-- Code Block -->
+        <div class="code-block">
+            <span class="comment">// Welcome to MR-LITERS LAB</span><br>
+            <span class="keyword">const</span> developer = {<br>
+            &nbsp;&nbsp;name: <span class="string">"عبد الله"</span>,<br>
+            &nbsp;&nbsp;role: <span class="string">"Full Stack Developer"</span>,<br>
+            &nbsp;&nbsp;skills: [<span class="string">"Web"</span>, <span class="string">"Mobile"</span>, <span class="string">"Security"</span>],<br>
+            &nbsp;&nbsp;passion: <span class="string">"Building the future"</span><br>
+            };
+        </div>
+
+        <div class="glow-line"></div>
+
+        <!-- Additional Terminal -->
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-dot"></div>
+                <div class="terminal-dot" style="background: #ffcc00;"></div>
+                <div class="terminal-dot" style="background: #ff0000;"></div>
+                <span class="terminal-title">status@lab:~</span>
+            </div>
+            <div class="terminal-content">
+                <div><span class="prompt">$</span> ./check_status.sh</div>
+                <div>[<span style="color: #00ff00;">OK</span>] System Online</div>
+                <div>[<span style="color: #00ff00;">OK</span>] All Systems Operational</div>
+                <div>[<span style="color: #00ff00;">OK</span>] Ready for Action<span class="cursor"></span></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-icons">
+                <i class="material-icons">mail</i>
+                <i class="material-icons">github</i>
+                <i class="material-icons">language</i>
+            </div>
+            <div>© 2024 MR-LITERS LAB | جميع الحقوق محفوظة</div>
+            <div class="binary-strip" style="margin-top: 20px;">
+                10101100 01101100 01100001 01100010 00100000 01101101 01110010
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Matrix Rain Effect using p5.js
+        function setup() {
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('matrix-bg');
+            frameRate(20);
+        }
+
+        let drops = [];
+        let characters = "عبدالله0123456789ABCDEF@#$%^&*";
+
+        function draw() {
+            background(10, 10, 10, 25);
+            
+            // Initialize drops
+            if (drops.length === 0) {
+                for (let i = 0; i < width / 20; i++) {
+                    drops[i] = random(-500, 0);
+                }
+            }
+            
+            fill(0, 255, 0);
+            textSize(14);
+            
+            for (let i = 0; i < drops.length; i++) {
+                let char = characters.charAt(floor(random(characters.length)));
+                text(char, i * 20, drops[i]);
+                
+                if (drops[i] > height && random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i] += 20;
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+
+        // Glitch intensity on hover
+        const glitchElement = document.querySelector('.glitch');
+        if (glitchElement) {
+            glitchElement.addEventListener('mouseenter', () => {
+                glitchElement.style.animation = 'glitch 0.1s infinite';
+            });
+            
+            glitchElement.addEventListener('mouseleave', () => {
+                glitchElement.style.animation = 'glitch 2s infinite';
+            });
+        }
+
+        // Console Easter Egg
+        console.log('%c MR-LITERS LAB ', 'background: #00ff00; color: #000; font-size: 30px; font-weight: bold;');
+        console.log('%c Welcome to the Matrix ', 'color: #00ff00; font-size: 16px;');
+<a href="projects.html" style="color: lime;">[ عرض المشاريع ]</a>
+
+    </script>
+</body>
+</html>
